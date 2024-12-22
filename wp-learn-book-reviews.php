@@ -64,7 +64,7 @@ add_action( 'rest_api_init', 'wp_learn_register_routes' );
 function wp_learn_register_routes() {
 	register_rest_route(
 		'wp-learn-book-reviews/v1',
-		'/book-review',
+		'/book-reviews',
 		array(
 			'methods'             => 'POST',
 			'callback'            => 'wp_learn_create_book_review',
@@ -84,7 +84,7 @@ function wp_learn_register_routes() {
 
 	register_rest_route(
 		'wp-learn-book-reviews/v1',
-		'/book-review/(?P<id>\d+)',
+		'/book-reviews/(?P<id>\d+)',
 		array(
 			'methods'             => 'GET',
 			'callback'            => 'wp_learn_get_review',
