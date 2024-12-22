@@ -59,12 +59,12 @@ function wp_learn_register_book_post_type() {
 
 add_action( 'rest_api_init', 'wp_learn_register_routes' );
 /**
- * Register the REST API wp-learn-book-reviews/v1/book-review routes.
+ * Register the REST API wp-learn/v1/book-review routes.
  */
 function wp_learn_register_routes() {
 	register_rest_route(
-		'wp-learn-book-reviews/v1',
-		'/book-review',
+		'wp-learn/v1',
+		'/book-reviews',
 		array(
 			'methods'             => 'POST',
 			'callback'            => 'wp_learn_create_book_review',
@@ -73,7 +73,7 @@ function wp_learn_register_routes() {
 	);
 
 	register_rest_route(
-		'wp-learn-book-reviews/v1',
+		'wp-learn/v1',
 		'/book-reviews',
 		array(
 			'methods'             => 'GET',
@@ -83,8 +83,8 @@ function wp_learn_register_routes() {
 	);
 
 	register_rest_route(
-		'wp-learn-book-reviews/v1',
-		'/book-review/(?P<id>\d+)',
+		'wp-learn/v1',
+		'/book-reviews/(?P<id>\d+)',
 		array(
 			'methods'             => 'GET',
 			'callback'            => 'wp_learn_get_review',
@@ -103,7 +103,7 @@ function wp_learn_require_permissions() {
 }
 
 /**
- * Callback for the wp-learn-book-reviews/v1/book-review POST route
+ * Callback for the wp-learn/v1/book-reviews route POST endpoint
  *
  * @param WP_REST_Request $request The request object.
  *
@@ -132,7 +132,7 @@ function wp_learn_create_book_review( $request ) {
 }
 
 /**
- * Callback for the wp-learn-book-reviews/v1/book-reviews GET route
+ * Callback for the wp-learn/v1/book-reviews route GET endpoint
  *
  * @return array|object|null
  */
@@ -145,7 +145,7 @@ function wp_learn_get_book_reviews() {
 }
 
 /**
- * Callback for the wp-learn-book-reviews/v1/book-review GET route
+ * Callback for the wp-learn/v1/book-reviews route GET by id endpoint
  *
  * @param object $request The request object.
  *
