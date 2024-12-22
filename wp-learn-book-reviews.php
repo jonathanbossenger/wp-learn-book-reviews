@@ -4,8 +4,10 @@
  * Description: Creates a book custom post type, with a reviews custom table.
  * Version: 1.0.0
  * License: GPL 2.0-or-later
+ * Text Domain: wp-learn-book-reviews
  *
  * @package WP_Learn_Book_Reviews
+ *
  */
 
 register_activation_hook( __FILE__, 'wp_learn_setup_book_reviews_table' );

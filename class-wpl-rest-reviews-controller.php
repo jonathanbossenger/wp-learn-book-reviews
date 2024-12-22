@@ -114,7 +114,7 @@ class WPL_REST_Reviews_Controller {
 
 		foreach ( $reviews as $review ) {
 			$response = $this->prepare_item_for_response( $review, $request );
-			$data[]   = $this->prepare_response_for_collection( $response );
+			$data[]   = $response;
 		}
 
 		return rest_ensure_response( $data );
@@ -166,40 +166,28 @@ class WPL_REST_Reviews_Controller {
 	public function prepare_item_for_response( $review, $request ) {
 		$post_data = array();
 
+		$post_data['id'] = $review->id;
+		$post_data['email'] = $review->email;
+
 		$schema = $this->get_item_schema( $request );
 
-		$post_data = $review;
+		if ( isset( $schema['properties']['slug'] ) ) {
+			$post_data['slug'] = (int) $review->book_slug;
+		}
+
+		if ( isset( $schema['properties']['time'] ) ) {
+			$post_data['time'] = (int) $review->review_time;
+		}
+
+		if ( isset( $schema['properties']['review'] ) ) {
+			$post_data['review'] = apply_filters( 'the_review_content', $review->review_text, $review );
+		}
+
+		if ( isset( $schema['properties']['rating'] ) ) {
+			$post_data['rating'] = (int) $review->star_rating;
+		}
 
 		return rest_ensure_response( $post_data );
-	}
-
-	/**
-	 * Prepare a response for inserting into a collection of responses.
-	 *
-	 * This is copied from WP_REST_Controller class in the WP REST API v2 plugin.
-	 *
-	 * @param WP_REST_Response $response Response object.
-	 * @return array Response data, ready for insertion into collection data.
-	 */
-	public function prepare_response_for_collection( $response ) {
-		if ( ! ( $response instanceof WP_REST_Response ) ) {
-			return $response;
-		}
-
-		$data   = (array) $response->get_data();
-		$server = rest_get_server();
-
-		if ( method_exists( $server, 'get_compact_response_links' ) ) {
-			$links = call_user_func( array( $server, 'get_compact_response_links' ), $response );
-		} else {
-			$links = call_user_func( array( $server, 'get_response_links' ), $response );
-		}
-
-		if ( ! empty( $links ) ) {
-			$data['_links'] = $links;
-		}
-
-		return $data;
 	}
 
 	/**
@@ -253,23 +241,35 @@ class WPL_REST_Reviews_Controller {
 			// This tells the spec of JSON Schema we are using which is draft 4.
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			// The title property marks the identity of the resource.
-			'title'      => 'form-submission',
+			'title'      => 'review',
 			'type'       => 'object',
 			// In JSON Schema you can specify object properties in the properties attribute.
 			'properties' => array(
 				'id'    => array(
-					'description' => esc_html__( 'Unique identifier for the form submission.', 'wp-learn-form-submissions' ),
+					'description' => esc_html__( 'Unique identifier for the review.', 'wp-learn-book-reviews' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
 				),
-				'name'  => array(
-					'description' => esc_html__( 'The name on the form submission.', 'wp-learn-form-submissions' ),
+				'slug' => array(
+					'description' => esc_html__( 'The book slug on the review.', 'wp-learn-book-reviews' ),
+					'type'        => 'string',
+				),
+				'time' => array(
+					'description' => esc_html__( 'The review time on the review.', 'wp-learn-book-reviews' ),
 					'type'        => 'string',
 				),
 				'email' => array(
-					'description' => esc_html__( 'The email on the form submission.', 'wp-learn-form-submissions' ),
+					'description' => esc_html__( 'The email on the review.', 'wp-learn-book-reviews' ),
 					'type'        => 'string',
+				),
+				'review' => array(
+					'description' => esc_html__( 'The review text on the review.', 'wp-learn-book-reviews' ),
+					'type'        => 'string',
+				),
+				'rating' => array(
+					'description' => esc_html__( 'The star rating on the review.', 'wp-learn-book-reviews' ),
+					'type'        => 'integer',
 				),
 			),
 		);
