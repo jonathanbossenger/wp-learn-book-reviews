@@ -18,7 +18,7 @@ function wp_learn_setup_book_reviews_table() {
 
 	$sql = "CREATE TABLE {$wpdb->prefix}book_reviews (
       id mediumint(9) NOT NULL AUTO_INCREMENT,
-      book_id mediumint(9) NOT NULL,
+      book_slug text NOT NULL,
       review_time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
       email text NOT NULL,
       review_text text NOT NULL,
