@@ -3,7 +3,7 @@
  * Plugin Name: WP Learn Book Reviews
  * Description: Creates a book custom post type, with a reviews custom table.
  * Version: 1.0.0
- * License: GPL2
+ * License: GPL 2.0-or-later
  *
  * @package WP_Learn_Book_Reviews
  */
@@ -18,6 +18,7 @@ function wp_learn_setup_book_reviews_table() {
 
 	$sql = "CREATE TABLE {$wpdb->prefix}book_reviews (
       id mediumint(9) NOT NULL AUTO_INCREMENT,
+      book_id mediumint(9) NOT NULL,
       review_time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
       email text NOT NULL,
       review_text text NOT NULL,
@@ -63,13 +64,42 @@ add_action( 'rest_api_init', 'wp_learn_register_routes' );
 function wp_learn_register_routes() {
 	register_rest_route(
 		'wp-learn-book-reviews/v1',
-		'/book-review/',
+		'/book-review',
 		array(
 			'methods'             => 'POST',
 			'callback'            => 'wp_learn_create_book_review',
+			'permission_callback' => 'wp_learn_require_permissions',
+		)
+	);
+
+	register_rest_route(
+		'wp-learn-book-reviews/v1',
+		'/book-reviews',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'wp_learn_get_book_reviews',
 			'permission_callback' => '__return_true',
 		)
 	);
+
+	register_rest_route(
+		'wp-learn-book-reviews/v1',
+		'/book-review/(?P<id>\d+)',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'wp_learn_get_review',
+			'permission_callback' => '__return_true',
+		)
+	);
+}
+
+/**
+ * Check if the current user can edit posts.
+ *
+ * @return bool
+ */
+function wp_learn_require_permissions() {
+	return current_user_can( 'edit_posts' );
 }
 
 /**
@@ -83,7 +113,7 @@ function wp_learn_create_book_review( $request ) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . 'book_reviews';
 
-	$book_id     = intval( $request['book_id'] );
+	$book_slug   = sanitize_text_field( $request['book_slug'] );
 	$email       = sanitize_email( $request['email'] );
 	$review_text = sanitize_textarea_field( $request['review_text'] );
 	$star_rating = intval( $request['star_rating'] );
@@ -91,7 +121,7 @@ function wp_learn_create_book_review( $request ) {
 	$rows = $wpdb->insert(
 		$table_name,
 		array(
-			'book_id'     => $book_id,
+			'book_slug'   => $book_slug,
 			'email'       => $email,
 			'review_text' => $review_text,
 			'star_rating' => $star_rating,
@@ -99,4 +129,38 @@ function wp_learn_create_book_review( $request ) {
 	);
 
 	return $rows;
+}
+
+/**
+ * Callback for the wp-learn-book-reviews/v1/book-reviews GET route
+ *
+ * @return array|object|null
+ */
+function wp_learn_get_book_reviews() {
+	global $wpdb;
+
+	$results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}book_reviews" );
+
+	return $results;
+}
+
+/**
+ * Callback for the wp-learn-book-reviews/v1/book-review GET route
+ *
+ * @param object $request The request object.
+ *
+ * @return mixed|stdClass
+ */
+function wp_learn_get_review( $request ) {
+	global $wpdb;
+	$id = $request['id'];
+
+	$results = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}book_reviews WHERE id = %d",
+			$id
+		)
+	);
+
+	return $results[0];
 }
