@@ -63,7 +63,7 @@ add_action( 'rest_api_init', 'wp_learn_register_routes' );
  */
 function wp_learn_register_routes() {
 	register_rest_route(
-		'wp-learn-book-reviews/v1',
+		'wp-learn/v1',
 		'/book-reviews',
 		array(
 			'methods'             => 'POST',
@@ -73,7 +73,7 @@ function wp_learn_register_routes() {
 	);
 
 	register_rest_route(
-		'wp-learn-book-reviews/v1',
+		'wp-learn/v1',
 		'/book-reviews',
 		array(
 			'methods'             => 'GET',
@@ -83,7 +83,7 @@ function wp_learn_register_routes() {
 	);
 
 	register_rest_route(
-		'wp-learn-book-reviews/v1',
+		'wp-learn/v1',
 		'/book-reviews/(?P<id>\d+)',
 		array(
 			'methods'             => 'GET',
